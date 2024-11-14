@@ -1,12 +1,14 @@
+type Board = (string | null)[];
+
 export function minimax(
-  board: (string | null)[],
+  board: Board,
   depth: number,
   isMaximizing: boolean,
   player: string,
   opponent: string
 ): number {
   const result = checkWinner(board);
-  
+
   if (result === player) return 10 - depth;
   if (result === opponent) return depth - 10;
   if (isBoardFull(board)) return 0;
@@ -36,13 +38,13 @@ export function minimax(
   }
 }
 
-export function findBestMove(board: (string | null)[], player: string, opponent: string): number {
+export function findBestMove(board: Board, player: string, opponent: string): number {
   let bestScore = -Infinity;
   let bestMove = -1;
 
   for (let i = 0; i < board.length; i++) {
     if (!board[i]) {
-      board[i] = player;
+      board[i] = opponent;
       const score = minimax(board, 0, false, player, opponent);
       board[i] = null;
 
@@ -56,11 +58,11 @@ export function findBestMove(board: (string | null)[], player: string, opponent:
   return bestMove;
 }
 
-function checkWinner(board: (string | null)[]): string | null {
-  const lines = [
-    [0, 1, 2], [3, 4, 5], [6, 7, 8],
-    [0, 3, 6], [1, 4, 7], [2, 5, 8],
-    [0, 4, 8], [2, 4, 6]
+function checkWinner(board: Board): string | null {
+  const lines: number[][] = [
+    [0, 1, 2], [3, 4, 5], [6, 7, 8], // Rows
+    [0, 3, 6], [1, 4, 7], [2, 5, 8], // Columns
+    [0, 4, 8], [2, 4, 6] // Diagonals
   ];
 
   for (const [a, b, c] of lines) {
@@ -68,9 +70,10 @@ function checkWinner(board: (string | null)[]): string | null {
       return board[a];
     }
   }
+
   return null;
 }
 
-function isBoardFull(board: (string | null)[]): boolean {
+function isBoardFull(board: Board): boolean {
   return board.every(cell => cell !== null);
 }
