@@ -3,13 +3,18 @@ import { motion } from 'framer-motion';
 import { Gamepad2, Code2, Bot, Users } from 'lucide-react';
 import { Board } from './components/Board';
 import { GameStatus } from './components/GameStatus';
-import { findBestMove } from './utils/minimax';
+import { findBestMove } from './utils/minimax'; // Adjusted to import from correct path
 
 function calculateWinner(squares: (string | null)[]) {
   const lines = [
-    [0, 1, 2], [3, 4, 5], [6, 7, 8],
-    [0, 3, 6], [1, 4, 7], [2, 5, 8],
-    [0, 4, 8], [2, 4, 6]
+    [0, 1, 2],
+    [3, 4, 5],
+    [6, 7, 8],
+    [0, 3, 6],
+    [1, 4, 7],
+    [2, 5, 8],
+    [0, 4, 8],
+    [2, 4, 6],
   ];
 
   for (const [a, b, c] of lines) {
@@ -21,40 +26,42 @@ function calculateWinner(squares: (string | null)[]) {
 }
 
 function App() {
-  const [squares, setSquares] = useState<(string | null)[]>(Array(9).fill(null));
+  const [squares, setSquares] = useState<(string | null)[]>(
+    Array(9).fill(null)
+  );
   const [xIsNext, setXIsNext] = useState(true);
   const [vsBot, setVsBot] = useState(false);
   const [gameStarted, setGameStarted] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
-  
+
   const { winner, line } = calculateWinner(squares);
-  const isDraw = !winner && squares.every(square => square !== null);
+  const isDraw = !winner && squares.every((square) => square !== null);
 
   useEffect(() => {
     if (vsBot && !xIsNext && !winner && !isDraw && !isProcessing) {
       setIsProcessing(true);
-      const timer = setTimeout(() => {
-        const bestMove = findBestMove(squares, 'O', 'X');
-        if (bestMove !== -1) {
-          const newSquares = squares.slice();
-          newSquares[bestMove] = 'O';
-          setSquares(newSquares);
-          setXIsNext(true);
-        }
-        setIsProcessing(false);
-      }, 500);
-      
-      return () => clearTimeout(timer);
+  
+      const bestMove = findBestMove(squares, 'O', 'X'); // Bot is 'O', Player is 'X'
+      if (bestMove !== -1) {
+        const newSquares = squares.slice();
+        newSquares[bestMove] = 'O'; // Bot makes its move
+        setSquares(newSquares);
+        setXIsNext(true); // Player's turn next
+      }
+  
+      setIsProcessing(false);
     }
   }, [squares, xIsNext, vsBot, winner, isDraw, isProcessing]);
+  
+  
 
   const handleClick = (i: number) => {
     if (winner || squares[i] || (!xIsNext && vsBot) || isProcessing) return;
-    
+
     const newSquares = squares.slice();
-    newSquares[i] = xIsNext ? 'X' : 'O';
+    newSquares[i] = xIsNext ? 'X' : 'O'; // Player 'X' or 'O' moves
     setSquares(newSquares);
-    setXIsNext(!xIsNext);
+    setXIsNext(!xIsNext); // Toggle turn
   };
 
   const handleRestart = () => {
@@ -68,7 +75,7 @@ function App() {
     setVsBot(withBot);
     setGameStarted(true);
     setSquares(Array(9).fill(null));
-    setXIsNext(true);
+    setXIsNext(true); // Player 'X' always starts
     setIsProcessing(false);
   };
 
@@ -117,11 +124,7 @@ function App() {
             animate={{ opacity: 1, scale: 1 }}
             className="bg-white/50 backdrop-blur-sm p-6 md:p-8 rounded-2xl shadow-xl"
           >
-            <Board
-              squares={squares}
-              onClick={handleClick}
-              winningLine={line}
-            />
+            <Board squares={squares} onClick={handleClick} winningLine={line} />
           </motion.div>
 
           <motion.div
